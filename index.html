@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     
     <script>
-        const PAGE_TITLE = "HOTEL FINE RENTAL"; // スマホのタブなどに表示されるタイトル
-        const BUTTON_TEXT = "カタログを開く"; // 画面下の緑ボタンの文字
+        const PAGE_TITLE = "HOTEL FINE RENTAL"; 
+        const BUTTON_TEXT = "カタログを開く"; 
     </script>
 
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
@@ -19,7 +19,7 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 18px 0;
-            background-color: #00cc66; /* 鮮やかな緑色 */
+            background-color: #00cc66;
             color: white;
             font-size: 20px;
             font-weight: bold;
@@ -46,7 +46,7 @@
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
-            <a-video src="#ar-video" width="2.4" height="1.35" position="0 0 0" rotation="-90 0 0"></a-video>
+            <a-video src="#ar-video" width="2.4" height="1.35" position="0 0.2 0" rotation="-60 0 0"></a-video>
         </a-marker>
 
         <a-entity camera></a-entity>
@@ -71,3 +71,10 @@
         });
 
         document.body.addEventListener('click', (e) => {
+            if(e.target.id !== 'ar-link-button') {
+                video.play();
+            }
+        });
+    </script>
+</body>
+</html>
