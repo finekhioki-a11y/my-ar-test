@@ -12,7 +12,7 @@
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         
         <a-assets>
-            <video id="ar-video" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" preload="auto" response-type="arraybuffer" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+            <video id="ar-video" src="https://assets.mixkit.co/videos/preview/mixkit-playing-with-a-smartphone-in-bed-41824-large.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
@@ -25,13 +25,34 @@
     <script>
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
+        let isMarkerFound = false;
 
+        // マーカーを検知したとき
         marker.addEventListener('markerFound', () => {
-            video.play();
+            isMarkerFound = true;
+            // スマホのブロックがなければ再生
+            video.play().catch(err => {
+                console.log("自動再生がブロックされました。画面をタップしてください。");
+            });
         });
 
+        // マーカーが外れたとき
         marker.addEventListener('markerLost', () => {
+            isMarkerFound = false;
             video.pause();
+        });
+
+        // 🔥【超重要】画面のどこかをタップしたら強制的に再生ブロックを解除する仕組み
+        document.body.addEventListener('click', () => {
+            // マーカーが見えている状態なら動画を再生する
+            if (isMarkerFound) {
+                video.play();
+            } else {
+                // マーカーが見えていなくても、裏で一度再生して「いつでも流せる準備」をする
+                video.play().then(() => {
+                    video.pause();
+                });
+            }
         });
     </script>
 </body>
