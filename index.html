@@ -10,24 +10,29 @@
     <style>
         #ar-link-button {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px 30px;
-            background-color: #ff3366; /* 目立つピンク赤色 */
+            padding: 18px 0; /* 上下の幅を少し広げました */
+            background-color: #00cc66; /* 鮮やかな緑色 */
             color: white;
-            font-size: 18px;
+            font-size: 20px; /* 文字を少し大きくしました */
             font-weight: bold;
             border: none;
             border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 9999;
-            display: none; /* 最初は隠しておきます */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            
+            /* 🔥 ここが重要：AR画面よりも絶対に手前に表示させる魔法の数字です */
+            z-index: 999999 !important; 
+            
+            display: none; /* 最初は隠します */
             text-decoration: none;
             font-family: sans-serif;
+            text-align: center;
+            width: 80%; /* 押しやすいように横幅を広くしました */
         }
         #ar-link-button:active {
-            background-color: #dd1144;
+            background-color: #009944;
         }
     </style>
 </head>
@@ -46,7 +51,7 @@
         <a-entity camera></a-entity>
     </scene>
 
-    <button id="ar-link-button">📄 カタログ・予約ページを開く</button>
+    <a id="ar-link-button" href="https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1" target="_blank" rel="noopener noreferrer">📄 カタログページを開く</a>
 
     <script>
         const marker = document.getElementById('marker');
@@ -54,31 +59,25 @@
         const button = document.getElementById('ar-link-button');
         let isMarkerFound = false;
 
-        // マーカーを検知したとき（動画を表示＆ボタンを出す）
+        // マーカーを検知したとき
         marker.addEventListener('markerFound', () => {
             isMarkerFound = true;
             video.play().catch(err => { console.log("自動再生ブロック中"); });
-            button.style.display = 'block'; // 🔥 ボタンを表示する！
+            button.style.display = 'block'; // 🔥 ここでボタンを強制表示！
         });
 
-        // マーカーが外れたとき（動画を一時停止＆ボタンを隠す）
+        // マーカーが外れたとき
         marker.addEventListener('markerLost', () => {
             isMarkerFound = false;
             video.pause();
-            button.style.display = 'none'; // 🔥 ボタンを隠す！
+            button.style.display = 'none'; // 🔥 ここでボタンを隠す！
         });
 
-        // 画面のどこかをタップしたら動画の再生ブロックを解除する
+        // 画面のどこかをタップしたら動画の再生ブロックを解除
         document.body.addEventListener('click', (e) => {
-            // タップしたのがボタンそのものではない場合のみ処理
             if(e.target.id !== 'ar-link-button') {
                 video.play();
             }
-        });
-
-        // 🔥 ボタンがタップされたら100%確実に指定のURLにジャンプする
-        button.addEventListener('click', () => {
-            window.location.href = "https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1";
         });
     </script>
 </body>
