@@ -12,7 +12,7 @@
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         
         <a-assets>
-            <video id="ar-video" src="https://assets.mixkit.co/videos/preview/mixkit-playing-with-a-smartphone-in-bed-41824-large.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
+            <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
@@ -30,9 +30,8 @@
         // マーカーを検知したとき
         marker.addEventListener('markerFound', () => {
             isMarkerFound = true;
-            // スマホのブロックがなければ再生
             video.play().catch(err => {
-                console.log("自動再生がブロックされました。画面をタップしてください。");
+                console.log("自動再生ブロック中");
             });
         });
 
@@ -42,13 +41,11 @@
             video.pause();
         });
 
-        // 🔥【超重要】画面のどこかをタップしたら強制的に再生ブロックを解除する仕組み
+        // 画面タップで再生ブロックを強制解除する魔法
         document.body.addEventListener('click', () => {
-            // マーカーが見えている状態なら動画を再生する
             if (isMarkerFound) {
                 video.play();
             } else {
-                // マーカーが見えていなくても、裏で一度再生して「いつでも流せる準備」をする
                 video.play().then(() => {
                     video.pause();
                 });
