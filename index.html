@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     
     <script>
-        const PAGE_TITLE = "HOTEL FINE RENTAL"; 
-        const BUTTON_TEXT = "カタログを開く"; 
+        const PAGE_TITLE = "HOTEL FINE RENTAL"; // タブのタイトル
+        const BUTTON_TEXT = "カタログを開く"; // 緑ボタンの文字
     </script>
 
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
@@ -19,7 +19,7 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 18px 0;
-            background-color: #00cc66; 
+            background-color: #00cc66; /* 鮮やかな緑色 */
             color: white;
             font-size: 20px;
             font-weight: bold;
@@ -45,7 +45,7 @@
             <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
-        <a-marker type="pattern" url="marker.patt" patternRatio="0.7" id="marker">
+        <a-marker preset="hiro" id="marker">
             <a-video src="#ar-video" width="2.4" height="1.35" position="0 0.1 0" rotation="-90 0 0"></a-video>
         </a-marker>
 
@@ -62,14 +62,17 @@
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
 
+        // マーカーを見つけたら動画を再生
         marker.addEventListener('markerFound', () => {
             video.play().catch(err => { console.log("自動再生ブロック中"); });
         });
 
+        // マーカーが外れたら動画を一時停止
         marker.addEventListener('markerLost', () => {
             video.pause();
         });
 
+        // 画面タッチで動画の再生制限を解除（ボタン以外）
         document.body.addEventListener('click', (e) => {
             if(e.target.id !== 'ar-link-button') {
                 video.play();
