@@ -6,62 +6,79 @@
     <title>最先端AR印刷サンプル</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        #ar-link-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            background-color: #ff3366; /* 目立つピンク赤色 */
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 9999;
+            display: none; /* 最初は隠しておきます */
+            text-decoration: none;
+            font-family: sans-serif;
+        }
+        #ar-link-button:active {
+            background-color: #dd1144;
+        }
+    </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         
         <a-assets>
             <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
-            <a-video id="ar-video-plane" class="clickable" src="#ar-video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0"></a-video>
+            <a-video src="#ar-video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0"></a-video>
         </a-marker>
 
         <a-entity camera></a-entity>
     </scene>
 
+    <button id="ar-link-button">📄 カタログ・予約ページを開く</button>
+
     <script>
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
-        const videoPlane = document.getElementById('ar-video-plane');
+        const button = document.getElementById('ar-link-button');
         let isMarkerFound = false;
-        let hasPlayedOnce = false;
 
-        // マーカーを検知したとき
+        // マーカーを検知したとき（動画を表示＆ボタンを出す）
         marker.addEventListener('markerFound', () => {
             isMarkerFound = true;
-            video.play().catch(err => {
-                console.log("自動再生ブロック中");
-            });
+            video.play().catch(err => { console.log("自動再生ブロック中"); });
+            button.style.display = 'block'; // 🔥 ボタンを表示する！
         });
 
-        // マーカーが外れたとき
+        // マーカーが外れたとき（動画を一時停止＆ボタンを隠す）
         marker.addEventListener('markerLost', () => {
             isMarkerFound = false;
             video.pause();
+            button.style.display = 'none'; // 🔥 ボタンを隠す！
         });
 
-        // 🔥 動画をタップしたときの処理
-        videoPlane.addEventListener('click', () => {
-            if (!hasPlayedOnce) {
-                // 1回目のタップ：動画の再生ブロックを解除して再生
+        // 画面のどこかをタップしたら動画の再生ブロックを解除する
+        document.body.addEventListener('click', (e) => {
+            // タップしたのがボタンそのものではない場合のみ処理
+            if(e.target.id !== 'ar-link-button') {
                 video.play();
-                hasPlayedOnce = true;
-            } else {
-                // 2回目以降のタップ：ご指定のレンタルカタログのページへジャンプ！
-                window.location.href = "https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1";
             }
         });
 
-        // マーカーが見えていない時に画面を触っても1回だけ再生準備をする処理
-        document.body.addEventListener('click', () => {
-            if (!hasPlayedOnce && !isMarkerFound) {
-                video.play().then(() => {
-                    video.pause();
-                });
-            }
+        // 🔥 ボタンがタップされたら100%確実に指定のURLにジャンプする
+        button.addEventListener('click', () => {
+            window.location.href = "https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1";
         });
     </script>
 </body>
