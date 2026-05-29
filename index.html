@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>最先端AR印刷サンプル</title>
+    
+    <script>
+        const PAGE_TITLE = "HOTEL FINE RENTAL"; // スマホのタブなどに表示されるタイトル
+        const BUTTON_TEXT = "カタログを開く"; // 画面下の緑ボタンの文字
+    </script>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
@@ -14,20 +18,15 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 18px 0;
-            background-color: #00cc66; /* 鮮やかな緑色 */
+            background-color: #00cc66;
             color: white;
             font-size: 20px;
             font-weight: bold;
             border: none;
             border-radius: 30px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            
-            /* AR画面の最前面に強制表示する設定 */
             z-index: 999999 !important; 
-            
-            /* 💡 最初からずっと表示させておく設定に変えました */
             display: block !important; 
-            
             text-decoration: none;
             font-family: sans-serif;
             text-align: center;
@@ -41,7 +40,6 @@
 <body style="margin: 0; overflow: hidden;">
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-        
         <a-assets>
             <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
@@ -53,23 +51,25 @@
         <a-entity camera></a-entity>
     </scene>
 
-    <a id="ar-link-button" href="https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1" target="_blank" rel="noopener noreferrer">📄 カタログページを開く</a>
+    <a id="ar-link-button" href="https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1" target="_blank" rel="noopener noreferrer"></a>
 
     <script>
+        // 設定した文字を画面に反映させるプログラム
+        document.title = PAGE_TITLE;
+        const button = document.getElementById('ar-link-button');
+        button.textContent = BUTTON_TEXT;
+
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
 
-        // マーカーを検知したとき（シンプルに動画の再生だけをおこなう）
         marker.addEventListener('markerFound', () => {
             video.play().catch(err => { console.log("自動再生ブロック中"); });
         });
 
-        // マーカーが外れたとき
         marker.addEventListener('markerLost', () => {
             video.pause();
         });
 
-        // 画面のどこかをタップしたら動画の再生ブロックを解除
         document.body.addEventListener('click', (e) => {
             if(e.target.id !== 'ar-link-button') {
                 video.play();
