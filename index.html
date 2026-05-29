@@ -19,7 +19,7 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 18px 0;
-            background-color: #00cc66;
+            background-color: #00cc66; /* 鮮やかな緑色 */
             color: white;
             font-size: 20px;
             font-weight: bold;
@@ -46,7 +46,7 @@
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
-            <a-video src="#ar-video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0"></a-video>
+            <a-video src="#ar-video" width="2.4" height="1.35" position="0 0 0" rotation="-90 0 0"></a-video>
         </a-marker>
 
         <a-entity camera></a-entity>
@@ -71,10 +71,3 @@
         });
 
         document.body.addEventListener('click', (e) => {
-            if(e.target.id !== 'ar-link-button') {
-                video.play();
-            }
-        });
-    </script>
-</body>
-</html>
