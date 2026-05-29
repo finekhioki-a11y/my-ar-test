@@ -9,14 +9,14 @@
 </head>
 <body style="margin: 0; overflow: hidden;">
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
         
         <a-assets>
             <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
         <a-marker preset="hiro" id="marker">
-            <a-video src="#ar-video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0"></a-video>
+            <a-video id="ar-video-plane" class="clickable" src="#ar-video" width="1.6" height="0.9" position="0 0 0" rotation="-90 0 0"></a-video>
         </a-marker>
 
         <a-entity camera></a-entity>
@@ -25,7 +25,9 @@
     <script>
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
+        const videoPlane = document.getElementById('ar-video-plane');
         let isMarkerFound = false;
+        let hasPlayedOnce = false;
 
         // マーカーを検知したとき
         marker.addEventListener('markerFound', () => {
@@ -41,11 +43,21 @@
             video.pause();
         });
 
-        // 画面タップで再生ブロックを強制解除する魔法
-        document.body.addEventListener('click', () => {
-            if (isMarkerFound) {
+        // 🔥 動画をタップしたときの処理
+        videoPlane.addEventListener('click', () => {
+            if (!hasPlayedOnce) {
+                // 1回目のタップ：動画の再生ブロックを解除して再生
                 video.play();
+                hasPlayedOnce = true;
             } else {
+                // 2回目以降のタップ：ご指定のレンタルカタログのページへジャンプ！
+                window.location.href = "https://www.hotel-fine.co.jp/member/rental/book/#target/page_no=1";
+            }
+        });
+
+        // マーカーが見えていない時に画面を触っても1回だけ再生準備をする処理
+        document.body.addEventListener('click', () => {
+            if (!hasPlayedOnce && !isMarkerFound) {
                 video.play().then(() => {
                     video.pause();
                 });
