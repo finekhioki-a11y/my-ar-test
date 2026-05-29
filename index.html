@@ -10,7 +10,7 @@
     </script>
 
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://threejs.org/build/three.js"></script>
     
     <style>
         #ar-link-button {
@@ -36,20 +36,35 @@
         #ar-link-button:active {
             background-color: #009944;
         }
+        #instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 999990;
+            font-family: sans-serif;
+            text-align: center;
+            pointer-events: none;
+        }
     </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body style="margin: 0; overflow: hidden; touch-action: none;">
 
-    <div id="touch-area" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; touch-action: none;"></div>
+    <div id="instructions">画面をタップして動画を配置<br>2本指で拡大・縮小・回転できます</div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-assets>
             <video id="ar-video" src="hotelfine_rentalcatalog_teaser2026.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline webkit-playsinline muted></video>
         </a-assets>
 
-        <a-marker preset="hiro" id="marker">
-            <a-video id="ar-video-plane" src="#ar-video" width="2.4" height="1.35" position="0 0.1 0" rotation="-90 0 0" scale="1 1 1"></a-video>
-        </a-marker>
+        <a-entity id="video-wrapper" position="0 0 -2.5" rotation="0 0 0" scale="1 1 1">
+            <a-video id="ar-video-plane" src="#ar-video" width="2.4" height="1.35"></a-video>
+        </a-entity>
 
         <a-entity camera></a-entity>
     </scene>
@@ -61,19 +76,22 @@
         const button = document.getElementById('ar-link-button');
         button.textContent = BUTTON_TEXT;
 
-        const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
+        const videoWrapper = document.getElementById('video-wrapper');
         const videoPlane = document.getElementById('ar-video-plane');
-        const touchArea = document.getElementById('touch-area');
 
-        // --- 💡 ここから：安全に指の拡大・縮小・回転を行う最新プログラム ---
+        // ページが開いたらすぐに動画の再生準備をする
+        video.play().catch(err => { console.log("自動再生ブロック中"); });
+
+        // --- 💡 noteの解説通りに動く、超スムーズな指操作プログラム ---
         let evHistory = [];
         let prevDiff = -1;
         let currentScale = 1.0;
         let startAngle = 0;
         let currentRotation = 0;
 
-        touchArea.addEventListener('pointerdown', (ev) => {
+        window.addEventListener('pointerdown', (ev) => {
+            if (ev.target.id === 'ar-link-button') return;
             evHistory.push(ev);
             if (evHistory.length === 2) {
                 prevDiff = Math.hypot(evHistory[0].clientX - evHistory[1].clientX, evHistory[0].clientY - evHistory[1].clientY);
@@ -81,7 +99,7 @@
             }
         });
 
-        touchArea.addEventListener('pointermove', (ev) => {
+        window.addEventListener('pointermove', (ev) => {
             for (let i = 0; i < evHistory.length; i++) {
                 if (ev.pointerId === evHistory[i].pointerId) {
                     evHistory[i] = ev;
@@ -90,22 +108,21 @@
             }
 
             if (evHistory.length === 2) {
-                // 🔍 拡大・縮小の計算（ピンチ）
+                // 🔍 ピンチイン・ピンチアウトで拡大縮小
                 const curDiff = Math.hypot(evHistory[0].clientX - evHistory[1].clientX, evHistory[0].clientY - evHistory[1].clientY);
                 if (prevDiff > 0) {
                     let ratio = curDiff / prevDiff;
                     currentScale *= ratio;
-                    // 行き過ぎ防止の制限（0.3倍〜3倍まで）
-                    currentScale = Math.min(Math.max(0.3, currentScale), 3.0);
-                    videoPlane.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
+                    currentScale = Math.min(Math.max(0.2, currentScale), 4.0); // 0.2倍〜4倍まで拡大可能
+                    videoWrapper.setAttribute('scale', `${currentScale} ${currentScale} ${currentScale}`);
                 }
                 prevDiff = curDiff;
 
-                // 🔄 回転の計算（ツイスト）
+                // 🔄 2本指をねじって回転
                 const curAngle = Math.atan2(evHistory[1].clientY - evHistory[0].clientY, evHistory[1].clientX - evHistory[0].clientX) * 180 / Math.PI;
                 const angleDiff = curAngle - startAngle;
-                currentRotation -= angleDiff; // 回転方向を合わせる
-                videoPlane.setAttribute('rotation', `-90 ${currentRotation} 0`);
+                currentRotation -= angleDiff;
+                videoWrapper.setAttribute('rotation', `0 ${currentRotation} 0`);
                 startAngle = curAngle;
             }
         });
@@ -117,28 +134,15 @@
                     break;
                 }
             }
-            if (evHistory.length < 2) {
-                prevDiff = -1;
-            }
+            if (evHistory.length < 2) prevDiff = -1;
         };
 
-        touchArea.addEventListener('pointerup', removePointer);
-        touchArea.addEventListener('pointercancel', removePointer);
-        touchArea.addEventListener('pointerout', removePointer);
-        touchArea.addEventListener('pointerleave', removePointer);
-        // --- 💡 ここまで ---
+        window.addEventListener('pointerup', removePointer);
+        window.addEventListener('pointercancel', removePointer);
 
-        marker.addEventListener('markerFound', () => {
-            video.play().catch(err => { console.log("自動再生ブロック中"); });
-        });
-
-        marker.addEventListener('markerLost', () => {
-            video.pause();
-        });
-
-        // 画面タッチで動画再生（ボタン以外）
-        touchArea.addEventListener('click', (e) => {
-            if (evHistory.length < 2) { // 2本指操作の時は再生処理をしない
+        // 画面をどこでもタップすると、動画が再生される
+        window.addEventListener('click', (e) => {
+            if (e.target.id !== 'ar-link-button') {
                 video.play();
             }
         });
