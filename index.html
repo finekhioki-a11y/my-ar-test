@@ -13,23 +13,25 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 18px 0; /* 上下の幅を少し広げました */
+            padding: 18px 0;
             background-color: #00cc66; /* 鮮やかな緑色 */
             color: white;
-            font-size: 20px; /* 文字を少し大きくしました */
+            font-size: 20px;
             font-weight: bold;
             border: none;
             border-radius: 30px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             
-            /* 🔥 ここが重要：AR画面よりも絶対に手前に表示させる魔法の数字です */
+            /* AR画面の最前面に強制表示する設定 */
             z-index: 999999 !important; 
             
-            display: none; /* 最初は隠します */
+            /* 💡 最初からずっと表示させておく設定に変えました */
+            display: block !important; 
+            
             text-decoration: none;
             font-family: sans-serif;
             text-align: center;
-            width: 80%; /* 押しやすいように横幅を広くしました */
+            width: 80%;
         }
         #ar-link-button:active {
             background-color: #009944;
@@ -56,21 +58,15 @@
     <script>
         const marker = document.getElementById('marker');
         const video = document.getElementById('ar-video');
-        const button = document.getElementById('ar-link-button');
-        let isMarkerFound = false;
 
-        // マーカーを検知したとき
+        // マーカーを検知したとき（シンプルに動画の再生だけをおこなう）
         marker.addEventListener('markerFound', () => {
-            isMarkerFound = true;
             video.play().catch(err => { console.log("自動再生ブロック中"); });
-            button.style.display = 'block'; // 🔥 ここでボタンを強制表示！
         });
 
         // マーカーが外れたとき
         marker.addEventListener('markerLost', () => {
-            isMarkerFound = false;
             video.pause();
-            button.style.display = 'none'; // 🔥 ここでボタンを隠す！
         });
 
         // 画面のどこかをタップしたら動画の再生ブロックを解除
